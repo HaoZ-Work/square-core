@@ -13,3 +13,4 @@ pymongo==4.0.2
 pyjwt==2.4.0
 aiohttp>=3.8.1
 square-elk-json-formatter==0.0.3
+trafilatura==1.4.0

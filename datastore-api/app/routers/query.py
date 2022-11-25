@@ -5,7 +5,8 @@ from fastapi.param_functions import Body, Path, Query
 
 from ..models.httperror import HTTPError
 from ..models.query import QueryResult
-from .dependencies import get_search_client, get_storage_connector, client_credentials
+from .dependencies import get_search_client, get_storage_connector, client_credentials, get_bing_search_client
+
 
 router = APIRouter(tags=["Query"])
 
@@ -33,8 +34,16 @@ async def search(
     dense_retrieval=Depends(get_search_client),
     credential_token=Depends(client_credentials)
 ):
+    if datastore_name == "bing_search":
+        try:
+            return await bing_search.search(query, top_k)
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
     # do dense retrieval
-    if index_name:
+    elif index_name:
         try:
             return await dense_retrieval.search(
                 datastore_name, 
